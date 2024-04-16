@@ -11,11 +11,11 @@
 void rpc_1(char *host)
 {
 	CLIENT *clnt;
-	enum clnt_stat retval_1;
-	int result_1;
-	enum clnt_stat retval_2;
-	int result_2;
-	struct peticion set_value_1_arg1;
+	// enum clnt_stat retval_1;
+	// int result_1;
+	// enum clnt_stat retval_2;
+	// int result_2;
+	// struct peticion set_value_1_arg1;
 	enum clnt_stat retval_3;
 	int result_3;
 	struct peticion get_value_1_arg1;
@@ -44,28 +44,26 @@ void rpc_1(char *host)
 	// if (retval_1 != RPC_SUCCESS) {
 	// 	clnt_perror (clnt, "call failed");
 	// }
-	// memset(&set_value_1_arg1, 0, sizeof(struct peticion));
-	// set_value_1_arg1.key = 1;
-	// char cadena[MAX_SIZE] = "Hola";
-	// strcpy(set_value_1_arg1.valor1, cadena);
-	// set_value_1_arg1.valor2_N = 3;
-	// for (int i = 0; i < set_value_1_arg1.valor2_N; i++){
-	// 	set_value_1_arg1.valor2_value[i] = 4.3;
-	// 	printf("%f\n", set_value_1_arg1.valor2_value[i]);
-	// }
+	memset(&set_value_1_arg1, 0, sizeof(struct peticion));
+	set_value_1_arg1.key = 1;
+	char cadena[MAX_SIZE] = "Hola";
+	strcpy(set_value_1_arg1.valor1, cadena);
+	set_value_1_arg1.valor2_N = 3;
+	for (int i = 0; i < set_value_1_arg1.valor2_N; i++)
+	{
+		set_value_1_arg1.valor2_value[i] = 4.3;
+		printf("%f\n", set_value_1_arg1.valor2_value[i]);
+	}
 
-	// retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
-	// if (retval_2 != RPC_SUCCESS)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-	memset(&get_value_1_arg1, 0, sizeof(struct peticion));
-	get_value_1_arg1.key = 1;
-	retval_3 = get_value_1(get_value_1_arg1, &get_value_1_resp, &result_3, clnt);
-	if (retval_3 != RPC_SUCCESS){
+	retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
+	if (retval_2 != RPC_SUCCESS)
+	{
 		clnt_perror(clnt, "call failed");
 	}
-	printf("%s, %d, %f\n", get_value_1_resp.valor1, get_value_1_resp.N_value2, get_value_1_resp.valor2_value[0]);
+	retval_3 = get_value_1(get_value_1_arg1, &get_value_1_resp, &result_3, clnt);
+	if (retval_3 != RPC_SUCCESS) {
+		clnt_perror (clnt, "call failed");
+	}
 	// retval_4 = modify_value_1(modify_value_1_arg1, &result_4, clnt);
 	// if (retval_4 != RPC_SUCCESS) {
 	// 	clnt_perror (clnt, "call failed");

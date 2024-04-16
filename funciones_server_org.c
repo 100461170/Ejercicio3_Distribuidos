@@ -38,7 +38,7 @@ init_1_svc(int *result, struct svc_req *rqstp)
 	struct peticion pet = {.op = 0};
 	// obtener resultado
 	struct respuesta resp_pet;
-	tratar_peticion(pet, &resp_pet);
+	tratar_peticion(&pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
 	return retval;
@@ -65,11 +65,13 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 		}
 	}
 	pthread_mutex_unlock(&mutex_server);
-	arg1.op = 1;
-	
+	// crear peticion
+	struct peticion pet = arg1;
+	memset(&pet, 0, sizeof(struct peticion));
+	pet.op = 1;
 	// obtener resultado
 	struct respuesta resp_pet;
-	tratar_peticion(arg1, &resp_pet);
+	tratar_peticion(&pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
 	return retval;
@@ -97,11 +99,13 @@ get_value_1_svc(struct peticion arg1, struct respuesta *resp, int *result, struc
 	}
 	pthread_mutex_unlock(&mutex_server);
 
-	arg1.op = 2;
+	// crear peticion
+	struct peticion pet = arg1;
+	memset(&pet, 0, sizeof(struct peticion));
+	pet.op = 2;
 	// obtener resultado
-	tratar_peticion(arg1, resp);
-	printf("%s, %d, %f\n", resp->valor1, resp->N_value2, resp->valor2_value[0]);
-	*result = resp->status;
+	tratar_peticion(&pet, resp);
+	*result = resp.status;
 	retval = 1;
 	return retval;
 }
@@ -128,10 +132,13 @@ modify_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 	}
 	pthread_mutex_unlock(&mutex_server);
 
-	arg1.op = 3;
+	// crear peticion
+	struct peticion pet = arg1;
+	memset(&pet, 0, sizeof(struct peticion));
+	pet.op = 3;
 	// obtener resultado
 	struct respuesta resp_pet;
-	tratar_peticion(arg1, &resp_pet);
+	tratar_peticion(&pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
 	return retval;
@@ -166,7 +173,7 @@ delete_key_1_svc(int key, int *result, struct svc_req *rqstp)
 	pet.key = key;
 	// obtener resultado
 	struct respuesta resp_pet;
-	tratar_peticion(pet, &resp_pet);
+	tratar_peticion(&pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
 	return retval;
@@ -201,7 +208,7 @@ exist_1_svc(int key, int *result, struct svc_req *rqstp)
 	pet.key = key;
 	// obtener resultado
 	struct respuesta resp_pet;
-	tratar_peticion(pet, &resp_pet);
+	tratar_peticion(&pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
 	return retval;

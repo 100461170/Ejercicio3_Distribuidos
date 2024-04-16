@@ -6,28 +6,6 @@
 #include "funciones.h"
 
 bool_t
-xdr_array_double (XDR *xdrs, array_double objp)
-{
-	register int32_t *buf;
-
-	 if (!xdr_vector (xdrs, (char *)objp, MAX_VECTOR,
-		sizeof (double), (xdrproc_t) xdr_double))
-		 return FALSE;
-	return TRUE;
-}
-
-bool_t
-xdr_array_int (XDR *xdrs, array_int objp)
-{
-	register int32_t *buf;
-
-	 if (!xdr_vector (xdrs, (char *)objp, MAX_VECTOR,
-		sizeof (int), (xdrproc_t) xdr_int))
-		 return FALSE;
-	return TRUE;
-}
-
-bool_t
 xdr_peticion (XDR *xdrs, peticion *objp)
 {
 	register int32_t *buf;
@@ -37,7 +15,7 @@ xdr_peticion (XDR *xdrs, peticion *objp)
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->key))
 		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->valor1, MAX))
+	 if (!xdr_opaque (xdrs, objp->valor1, MAX_SIZE))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->valor2_N))
 		 return FALSE;
@@ -45,8 +23,6 @@ xdr_peticion (XDR *xdrs, peticion *objp)
 		 return FALSE;
 	 if (!xdr_vector (xdrs, (char *)objp->valor2_value, MAX_VECTOR,
 		sizeof (double), (xdrproc_t) xdr_double))
-		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->q_name, MAX))
 		 return FALSE;
 	return TRUE;
 }
@@ -59,7 +35,7 @@ xdr_respuesta (XDR *xdrs, respuesta *objp)
 	int i;
 	 if (!xdr_int (xdrs, &objp->status))
 		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->valor1, MAX))
+	 if (!xdr_opaque (xdrs, objp->valor1, MAX_SIZE))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->N_value2))
 		 return FALSE;
@@ -77,7 +53,7 @@ xdr_tupla (XDR *xdrs, tupla *objp)
 	int i;
 	 if (!xdr_int (xdrs, &objp->clave))
 		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->valor1, MAX))
+	 if (!xdr_opaque (xdrs, objp->valor1, MAX_SIZE))
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->valor2_N))
 		 return FALSE;
@@ -88,43 +64,11 @@ xdr_tupla (XDR *xdrs, tupla *objp)
 }
 
 bool_t
-xdr_set_value_1_argument (XDR *xdrs, set_value_1_argument *objp)
-{
-	 if (!xdr_int (xdrs, &objp->key))
-		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->value1, MAX))
-		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->N_value2))
-		 return FALSE;
-	 if (!xdr_array_double (xdrs, objp->V_value2))
-		 return FALSE;
-	return TRUE;
-}
-
-bool_t
 xdr_get_value_1_argument (XDR *xdrs, get_value_1_argument *objp)
 {
-	 if (!xdr_int (xdrs, &objp->key))
+	 if (!xdr_peticion (xdrs, &objp->arg1))
 		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->value1, MAX))
-		 return FALSE;
-	 if (!xdr_array_int (xdrs, objp->N_value2))
-		 return FALSE;
-	 if (!xdr_array_double (xdrs, objp->V_value2))
-		 return FALSE;
-	return TRUE;
-}
-
-bool_t
-xdr_modify_value_1_argument (XDR *xdrs, modify_value_1_argument *objp)
-{
-	 if (!xdr_int (xdrs, &objp->key))
-		 return FALSE;
-	 if (!xdr_string (xdrs, &objp->value1, MAX))
-		 return FALSE;
-	 if (!xdr_int (xdrs, &objp->N_value2))
-		 return FALSE;
-	 if (!xdr_array_double (xdrs, objp->V_value2))
+	 if (!xdr_pointer (xdrs, (char **)&objp->resp, sizeof (respuesta), (xdrproc_t) xdr_respuesta))
 		 return FALSE;
 	return TRUE;
 }
