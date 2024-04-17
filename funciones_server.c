@@ -25,6 +25,7 @@ init_1_svc(int *result, struct svc_req *rqstp)
 		if (server_status == -1)
 		{
 			*result = -1;
+			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
 		else
@@ -32,8 +33,8 @@ init_1_svc(int *result, struct svc_req *rqstp)
 			server_initialized = server_status;
 		}
 	}
-	pthread_mutex_unlock(&mutex_server);
 
+	pthread_mutex_unlock(&mutex_server);
 	// crear peticion
 	struct peticion pet = {.op = 0};
 	// obtener resultado
@@ -41,6 +42,7 @@ init_1_svc(int *result, struct svc_req *rqstp)
 	tratar_peticion(pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
+	
 	return retval;
 }
 
@@ -57,6 +59,7 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 		if (server_status == -1)
 		{
 			*result = -1;
+			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
 		else
@@ -65,13 +68,14 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 		}
 	}
 	pthread_mutex_unlock(&mutex_server);
+	// 
 	arg1.op = 1;
-
 	// obtener resultado
 	struct respuesta resp_pet;
 	tratar_peticion(arg1, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
+	
 	return retval;
 }
 
@@ -86,14 +90,15 @@ get_value_1_svc(struct peticion arg1, struct respuesta *result, struct svc_req *
 	{
 		int server_status = server_init();
 		if (server_status == -1){
+			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
 		else{
 			server_initialized = server_status;
 		}
 	}
-	pthread_mutex_unlock(&mutex_server);
 
+	pthread_mutex_unlock(&mutex_server);
 	arg1.op = 2;
 	struct respuesta resp;
 	// obtener resultado
@@ -116,6 +121,7 @@ modify_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 		if (server_status == -1)
 		{
 			*result = -1;
+			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
 		else
@@ -147,6 +153,7 @@ delete_key_1_svc(int key, int *result, struct svc_req *rqstp)
 		if (server_status == -1)
 		{
 			*result = -1;
+			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
 		else
@@ -154,8 +161,8 @@ delete_key_1_svc(int key, int *result, struct svc_req *rqstp)
 			server_initialized = server_status;
 		}
 	}
-	pthread_mutex_unlock(&mutex_server);
 
+	pthread_mutex_unlock(&mutex_server);
 	// crear peticion
 	struct peticion pet;
 	memset(&pet, 0, sizeof(struct peticion));
@@ -182,6 +189,7 @@ exist_1_svc(int key, int *result, struct svc_req *rqstp)
 		if (server_status == -1)
 		{
 			*result = -1;
+			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
 		else
@@ -189,8 +197,8 @@ exist_1_svc(int key, int *result, struct svc_req *rqstp)
 			server_initialized = server_status;
 		}
 	}
-	pthread_mutex_unlock(&mutex_server);
 
+	pthread_mutex_unlock(&mutex_server);
 	// crear peticion
 	struct peticion pet;
 	memset(&pet, 0, sizeof(struct peticion));

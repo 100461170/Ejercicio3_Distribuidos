@@ -353,5 +353,5 @@ int server_init(){
     pthread_mutex_init(&almacen_mutex, NULL);
     // pthread_cond_init(&sync_cond, NULL);
 
-    return 0;
+    return 1;
 }

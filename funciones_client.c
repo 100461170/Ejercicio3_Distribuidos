@@ -43,21 +43,22 @@ rpc_1(char *host)
 	// 	clnt_perror (clnt, "call failed");
 	// }
 
+	puts("SET Empieza");
+	memset(&set_value_1_arg1, 0, sizeof(struct peticion));
+	set_value_1_arg1.key = 1;
+	char cadena[MAX_SIZE] = "Hola";
+	strcpy(set_value_1_arg1.valor1, cadena);
+	set_value_1_arg1.valor2_N = 3;
+	for (int i = 0; i < set_value_1_arg1.valor2_N; i++){
+		set_value_1_arg1.valor2_value[i] = 4.3;
+	}
+	retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
+	if (retval_2 != RPC_SUCCESS)
+	{
+		clnt_perror(clnt, "call failed");
+	}
 
-	// memset(&set_value_1_arg1, 0, sizeof(struct peticion));
-	// set_value_1_arg1.key = 1;
-	// char cadena[MAX_SIZE] = "Hola";
-	// strcpy(set_value_1_arg1.valor1, cadena);
-	// set_value_1_arg1.valor2_N = 3;
-	// for (int i = 0; i < set_value_1_arg1.valor2_N; i++){
-	// 	set_value_1_arg1.valor2_value[i] = 4.3;
-	// }
-	// retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
-	// if (retval_2 != RPC_SUCCESS)
-	// {
-	// 	clnt_perror(clnt, "call failed");
-	// }
-
+	puts("GET Empieza");
 	memset(&get_value_1_arg1, 0, sizeof(struct peticion));
 	get_value_1_arg1.key = 1;
 	retval_3 = get_value_1(get_value_1_arg1, &result_3, clnt);
