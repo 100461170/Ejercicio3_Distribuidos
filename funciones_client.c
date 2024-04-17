@@ -5,10 +5,10 @@
  */
 
 #include "funciones.h"
-#include <stdio.h>
-#include <string.h>
 
-void rpc_1(char *host)
+
+void
+rpc_1(char *host)
 {
 	CLIENT *clnt;
 	enum clnt_stat retval_1;
@@ -17,33 +17,33 @@ void rpc_1(char *host)
 	int result_2;
 	struct peticion set_value_1_arg1;
 	enum clnt_stat retval_3;
-	int result_3;
+	struct respuesta result_3;
 	struct peticion get_value_1_arg1;
-	struct respuesta get_value_1_resp;
-	// enum clnt_stat retval_4;
-	// int result_4;
-	// struct peticion modify_value_1_arg1;
-	// enum clnt_stat retval_5;
-	// int result_5;
-	// int delete_key_1_key;
-	// enum clnt_stat retval_6;
-	// int result_6;
-	// int exist_1_key;
+	enum clnt_stat retval_4;
+	int result_4;
+	struct peticion modify_value_1_arg1;
+	enum clnt_stat retval_5;
+	int result_5;
+	int delete_key_1_key;
+	enum clnt_stat retval_6;
+	int result_6;
+	int exist_1_key;
 
-#ifndef DEBUG
-	clnt = clnt_create(host, RPC, RPCVER, "udp");
-	if (clnt == NULL)
-	{
-		clnt_pcreateerror(host);
-		exit(1);
+#ifndef	DEBUG
+	clnt = clnt_create (host, RPC, RPCVER, "udp");
+	if (clnt == NULL) {
+		clnt_pcreateerror (host);
+		exit (1);
 	}
-#endif /* DEBUG */
+#endif	/* DEBUG */
 
 	// retval_1 = init_1(&result_1, clnt);
 	// printf("%d\n", result_1);
 	// if (retval_1 != RPC_SUCCESS) {
 	// 	clnt_perror (clnt, "call failed");
 	// }
+
+
 	// memset(&set_value_1_arg1, 0, sizeof(struct peticion));
 	// set_value_1_arg1.key = 1;
 	// char cadena[MAX_SIZE] = "Hola";
@@ -51,48 +51,63 @@ void rpc_1(char *host)
 	// set_value_1_arg1.valor2_N = 3;
 	// for (int i = 0; i < set_value_1_arg1.valor2_N; i++){
 	// 	set_value_1_arg1.valor2_value[i] = 4.3;
-	// 	printf("%f\n", set_value_1_arg1.valor2_value[i]);
 	// }
-
 	// retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
 	// if (retval_2 != RPC_SUCCESS)
 	// {
 	// 	clnt_perror(clnt, "call failed");
 	// }
+
 	memset(&get_value_1_arg1, 0, sizeof(struct peticion));
 	get_value_1_arg1.key = 1;
-	retval_3 = get_value_1(get_value_1_arg1, &get_value_1_resp, &result_3, clnt);
-	if (retval_3 != RPC_SUCCESS){
+	retval_3 = get_value_1(get_value_1_arg1, &result_3, clnt);
+	if (retval_3 != RPC_SUCCESS)
+	{
 		clnt_perror(clnt, "call failed");
 	}
-	printf("%s, %d, %f\n", get_value_1_resp.valor1, get_value_1_resp.N_value2, get_value_1_resp.valor2_value[0]);
+	printf("%s, %d, %f\n", result_3.valor1, result_3.N_value2, result_3.valor2_value[0]);
+
+	// memset(&modify_value_1_arg1, 0, sizeof(struct peticion));
+	// modify_value_1_arg1.key = 1;
+	// char cadena2[MAX_SIZE] = "chao";
+	// strcpy(modify_value_1_arg1.valor1, cadena2);
+	// modify_value_1_arg1.valor2_N = 3;
+	// for (int i = 0; i < modify_value_1_arg1.valor2_N; i++){
+	// 	modify_value_1_arg1.valor2_value[i] = 5.4;
+	// }
 	// retval_4 = modify_value_1(modify_value_1_arg1, &result_4, clnt);
 	// if (retval_4 != RPC_SUCCESS) {
 	// 	clnt_perror (clnt, "call failed");
 	// }
+	// delete_key_1_key = 1;
 	// retval_5 = delete_key_1(delete_key_1_key, &result_5, clnt);
 	// if (retval_5 != RPC_SUCCESS) {
 	// 	clnt_perror (clnt, "call failed");
 	// }
+	// printf("%d\n", result_5);
+
+	// exist_1_key = 1;
 	// retval_6 = exist_1(exist_1_key, &result_6, clnt);
 	// if (retval_6 != RPC_SUCCESS) {
 	// 	clnt_perror (clnt, "call failed");
 	// }
-#ifndef DEBUG
-	clnt_destroy(clnt);
-#endif /* DEBUG */
+	// printf("%d\n", result_6);
+#ifndef	DEBUG
+	clnt_destroy (clnt);
+#endif	 /* DEBUG */
 }
 
-int main(int argc, char *argv[])
+
+int
+main (int argc, char *argv[])
 {
 	char *host;
 
-	if (argc < 2)
-	{
-		printf("usage: %s server_host\n", argv[0]);
-		exit(1);
+	if (argc < 2) {
+		printf ("usage: %s server_host\n", argv[0]);
+		exit (1);
 	}
 	host = argv[1];
-	rpc_1(host);
-	exit(0);
+	rpc_1 (host);
+exit (0);
 }

@@ -127,8 +127,6 @@ void tratar_peticion(struct peticion p_local, struct respuesta *resp){
         resp->status = s_exist(p_local.key);
         break;
     }
-    printf("%s, %d, %f\n", resp->valor1, resp->N_value2, resp->valor2_value[0]);
-    
 }
 
 int s_init() {

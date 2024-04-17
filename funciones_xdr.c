@@ -62,13 +62,3 @@ xdr_tupla (XDR *xdrs, tupla *objp)
 		 return FALSE;
 	return TRUE;
 }
-
-bool_t
-xdr_get_value_1_argument (XDR *xdrs, get_value_1_argument *objp)
-{
-	 if (!xdr_peticion (xdrs, &objp->arg1))
-		 return FALSE;
-	 if (!xdr_pointer (xdrs, (char **)&objp->resp, sizeof (respuesta), (xdrproc_t) xdr_respuesta))
-		 return FALSE;
-	return TRUE;
-}

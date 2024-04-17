@@ -43,12 +43,6 @@ struct tupla {
 };
 typedef struct tupla tupla;
 
-struct get_value_1_argument {
-	struct peticion arg1;
-	struct respuesta *resp;
-};
-typedef struct get_value_1_argument get_value_1_argument;
-
 #define RPC 99
 #define RPCVER 1
 
@@ -60,8 +54,8 @@ extern  bool_t init_1_svc(int *, struct svc_req *);
 extern  enum clnt_stat set_value_1(struct peticion , int *, CLIENT *);
 extern  bool_t set_value_1_svc(struct peticion , int *, struct svc_req *);
 #define GET_VALUE 3
-extern  enum clnt_stat get_value_1(struct peticion , struct respuesta *, int *, CLIENT *);
-extern  bool_t get_value_1_svc(struct peticion , struct respuesta *, int *, struct svc_req *);
+extern  enum clnt_stat get_value_1(struct peticion , struct respuesta *, CLIENT *);
+extern  bool_t get_value_1_svc(struct peticion , struct respuesta *, struct svc_req *);
 #define MODIFY_VALUE 4
 extern  enum clnt_stat modify_value_1(struct peticion , int *, CLIENT *);
 extern  bool_t modify_value_1_svc(struct peticion , int *, struct svc_req *);
@@ -101,13 +95,11 @@ extern int rpc_1_freeresult ();
 extern  bool_t xdr_peticion (XDR *, peticion*);
 extern  bool_t xdr_respuesta (XDR *, respuesta*);
 extern  bool_t xdr_tupla (XDR *, tupla*);
-extern  bool_t xdr_get_value_1_argument (XDR *, get_value_1_argument*);
 
 #else /* K&R C */
 extern bool_t xdr_peticion ();
 extern bool_t xdr_respuesta ();
 extern bool_t xdr_tupla ();
-extern bool_t xdr_get_value_1_argument ();
 
 #endif /* K&R C */
 

@@ -66,7 +66,7 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 	}
 	pthread_mutex_unlock(&mutex_server);
 	arg1.op = 1;
-	
+
 	// obtener resultado
 	struct respuesta resp_pet;
 	tratar_peticion(arg1, &resp_pet);
@@ -76,7 +76,7 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 }
 
 bool_t
-get_value_1_svc(struct peticion arg1, struct respuesta *resp, int *result, struct svc_req *rqstp)
+get_value_1_svc(struct peticion arg1, struct respuesta *result, struct svc_req *rqstp)
 {
 	bool_t retval;
 	pthread_mutex_init(&mutex_server, NULL);
@@ -85,23 +85,20 @@ get_value_1_svc(struct peticion arg1, struct respuesta *resp, int *result, struc
 	if (server_initialized <= 0)
 	{
 		int server_status = server_init();
-		if (server_status == -1)
-		{
-			*result = -1;
+		if (server_status == -1){
 			return -1;
 		}
-		else
-		{
+		else{
 			server_initialized = server_status;
 		}
 	}
 	pthread_mutex_unlock(&mutex_server);
 
 	arg1.op = 2;
+	struct respuesta resp;
 	// obtener resultado
-	tratar_peticion(arg1, resp);
-	printf("%s, %d, %f\n", resp->valor1, resp->N_value2, resp->valor2_value[0]);
-	*result = resp->status;
+	tratar_peticion(arg1, &resp);
+	*result = resp;
 	retval = 1;
 	return retval;
 }

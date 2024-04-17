@@ -28,13 +28,11 @@ set_value_1(struct peticion arg1, int *clnt_res,  CLIENT *clnt)
 }
 
 enum clnt_stat 
-get_value_1(struct peticion arg1, struct respuesta *resp, int *clnt_res,  CLIENT *clnt)
+get_value_1(struct peticion arg1, struct respuesta *clnt_res,  CLIENT *clnt)
 {
-	get_value_1_argument arg;
-	arg.arg1 = arg1;
-	arg.resp = resp;
-	return (clnt_call (clnt, GET_VALUE, (xdrproc_t) xdr_get_value_1_argument, (caddr_t) &arg,
-		(xdrproc_t) xdr_int, (caddr_t) clnt_res,
+	return (clnt_call(clnt, GET_VALUE,
+		(xdrproc_t) xdr_peticion, (caddr_t) &arg1,
+		(xdrproc_t) xdr_respuesta, (caddr_t) clnt_res,
 		TIMEOUT));
 }
 
