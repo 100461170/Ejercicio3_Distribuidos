@@ -11,7 +11,7 @@
 
 int init(){
     // variable de entorno
-    char *host, 
+    char *host; 
     host = getenv("IP_TUPLAS");
     if (host == NULL){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
@@ -38,8 +38,8 @@ int init(){
 
 int set_value(int key, char *value1, int N_value2, double *V_value2){
     // variable de entorno
-    char *host,
-        host = getenv("IP_TUPLAS");
+    char *host;
+    host = getenv("IP_TUPLAS");
     if (host == NULL){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
@@ -72,7 +72,7 @@ int set_value(int key, char *value1, int N_value2, double *V_value2){
 
 int get_value(int key, char *value1, int *N_value2, double *V_value2){
     // variable de entorno
-    char *host, 
+    char *host; 
     host = getenv("IP_TUPLAS");
     if (host == NULL){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
@@ -98,7 +98,7 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2){
 	}
     // copiar valores
     strcpy(value1, result_3.valor1);
-    *N_value2 = result_3.valor2_value;
+    *N_value2 = result_3.N_value2;
     for (int i = 0; i < *N_value2; i++){
         V_value2[i] = result_3.valor2_value[i];
     }
@@ -108,8 +108,8 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2){
 
 int modify_value(int key, char *value1, int N_value2, double *V_value2){
     // variable de entorno
-    char *host,
-        host = getenv("IP_TUPLAS");
+    char *host;
+    host = getenv("IP_TUPLAS");
     if (host == NULL){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
@@ -141,8 +141,8 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2){
 }
 int delete_key(int key){
     // variable de entorno
-    char *host,
-        host = getenv("IP_TUPLAS");
+    char *host;
+    host = getenv("IP_TUPLAS");
     if (host == NULL){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         
@@ -170,7 +170,7 @@ int delete_key(int key){
 
 int exist(int key){
     // variable de entorno
-    char *host, 
+    char *host; 
     host = getenv("IP_TUPLAS");
     if (host == NULL){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");

@@ -3,31 +3,37 @@
 
 # Parameters
 
-CLIENT = funciones_client
-SERVER = funciones_server
+CLIENT = cliente 
+SERVER = servidor
+PRUEBA_SEC = prueba_sec
 
-SOURCES_CLNT.c = 
+SOURCES_CLNT.c = cliente.c 
+SOURCES_CLNT_sec.c = pruebas_secuenciales.c
 SOURCES_CLNT.h = 
 SOURCES_SVC.c = 
 SOURCES_SVC.h = 
 SOURCES.x = funciones.x
+library = libclaves.so
 
 TARGETS_SVC.c = funciones_svc.c funciones_server.c funciones_xdr.c 
-TARGETS_CLNT.c = funciones_clnt.c funciones_client.c funciones_xdr.c 
-TARGETS = funciones.h funciones_xdr.c funciones_clnt.c funciones_svc.c funciones_client.c funciones_server.c
+TARGETS_CLNT.c = funciones_clnt.c funciones_xdr.c 
+TARGETS = funciones.h funciones_xdr.c funciones_clnt.c funciones_svc.c funciones_server.c
 
 OBJECTS_CLNT = $(SOURCES_CLNT.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
+OBJECTS_CLNT_sec = $(SOURCES_CLNT_sec.c:%.c=%.o) $(TARGETS_CLNT.c:%.c=%.o)
 OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)
 # Compiler flags 
 
+CC = gcc
 CPPFLAGS += -D_REENTRANT
 CFLAGS += -g -I/usr/include/tirpc
 LDLIBS += -lnsl -lpthread -ldl -ltirpc 
+LIBFLAGS = 
  RPCGENFLAGS = 
 
 # Targets 
 
-all : $(CLIENT) $(SERVER)
+all : $(CLIENT) $(SERVER) $(PRUEBA_SEC)
 
 $(TARGETS) : $(SOURCES.x) 
 	rpcgen $(RPCGENFLAGS) $(SOURCES.x)
@@ -36,14 +42,36 @@ $(OBJECTS_CLNT) : $(SOURCES_CLNT.c) $(SOURCES_CLNT.h) $(TARGETS_CLNT.c)
 
 $(OBJECTS_SVC) : $(SOURCES_SVC.c) $(SOURCES_SVC.h) $(TARGETS_SVC.c) 
 
-$(CLIENT) : $(OBJECTS_CLNT) 
-	$(LINK.c) -o $(CLIENT) $(OBJECTS_CLNT) $(LDLIBS) 
 
 $(SERVER) : $(OBJECTS_SVC)
 	$(LINK.c) -o $(SERVER) $(OBJECTS_SVC) $(LDLIBS)
 
+# enlazar libreria dinamica con objeto clientes
+# este ejecutable es un cliente concurrente
+$(CLIENT): $(OBJECTS_CLNT) $(library) 
+	$(LINK.c) -o $(CLIENT) $(OBJECTS_CLNT) $(library) $(LDLIBS) -L. -lclaves -Wl,-rpath=.
+
+# este ejecutable es un cliente secuencial
+$(PRUEBA_SEC): $(OBJECTS_CLNT_sec) $(library) 
+	$(LINK.c) -o $(PRUEBA_SEC) $(OBJECTS_CLNT_sec) $(library) $(LDLIBS) -L. -lclaves -Wl,-rpath=.
+
+
+# compilar el .c a un objeto .o
+claves.o: claves.c
+	@echo "Creating dynamic library object from: $< ..."
+	$(CC) $(CFLAGS) $(LDLIBS) -c -Wall -Werror -fPIC $< -o $@
+
+#compilar .o en una libreria dinamica .so
+$(library): claves.o 
+	@echo "Creating dynamic library file from: $< ..."
+	$(CC) -shared -o $@ $^
+
+# compilar los archivos c a objetos
+%.o: %.c
+	@echo "Creating object file from: $< ..."
+	$(CC) -c $(CFLAGS) $< -o $@
 
 
  clean:
-	 $(RM) core $(OBJECTS_CLNT) $(OBJECTS_SVC) $(CLIENT) $(SERVER)
+	 $(RM) core $(OBJECTS_CLNT) $(OBJECTS_CLNT_sec) $(OBJECTS_SVC) $(CLIENT) $(SERVER) $(PRUEBA_SEC) $(library) claves.o
 
