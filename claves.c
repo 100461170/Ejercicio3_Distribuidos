@@ -4,343 +4,198 @@
 
 #include "claves.h"
 #include <unistd.h>
-#include "funciones.h"
 #include <stdio.h>
-#include <mqueue.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "funciones.h"
 
 int init(){
-    struct peticion p;
-    struct respuesta r;
-    mqd_t queue_servidor;
-    mqd_t queue_cliente;
-    char client_name[MAX];
-    // abrir colas
-    open_client(&queue_cliente, client_name);
-    if (-1 == queue_cliente){
-        perror("Error en cliente. Mq_open queue cliente");
+    // variable de entorno
+    char *host, 
+    host = getenv("IP_TUPLAS");
+    if (host == NULL){
+        fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
     }
-    open_server(&queue_servidor);
-    if (-1 == queue_servidor){
-        close_client(&queue_cliente, client_name);
-        perror("Error en cliente. Mq_open queue servidor");
+    // declaracion variables RPC
+    CLIENT *clnt;
+    enum clnt_stat retval_1;
+    int result_1;
+    // iniciar RPC
+    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    if (clnt == NULL){
+        clnt_pcreateerror(host);
         return -1;
     }
-    // Rellenar la peticion
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-    memset(&p, 0, sizeof(struct peticion));
-    p.op = 0;
-    strcpy(p.q_name, client_name);
-    // mandar peticion al servidor
-    int send_p = send_server(&queue_servidor, (const char *)&p, sizeof(struct peticion), 0);
-    if (-1 == send_p){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_send");
+    // funcion RPC
+    retval_1 = init_1(&result_1, clnt);
+    if (retval_1 != RPC_SUCCESS) {
+    	clnt_perror (clnt, "call failed");
         return -1;
     }
-    // recibir respuesta
-    int recv_r = receive_client(&queue_cliente, (char *)&r, sizeof(struct respuesta), 0);
-    if (-1 == recv_r){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_recv");
-        return -1;
-    }
-    close_queues(&queue_servidor, &queue_cliente, client_name);
-    return r.status;
-
+    return result_1;
 }
 
 int set_value(int key, char *value1, int N_value2, double *V_value2){
-    struct peticion p;
-    struct respuesta r;
-    mqd_t queue_servidor;
-    mqd_t queue_cliente;
-    char client_name[MAX];
-    // comprobar errores
-    if (N_value2 < 1 || N_value2 > 32){
-        fprintf(stderr, "Error: N_value2 no esta en el rango [1,32].\n");
+    // variable de entorno
+    char *host,
+        host = getenv("IP_TUPLAS");
+    if (host == NULL){
+        fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
     }
-    if (strlen(value1)>MAX){
-        fprintf(stderr, "Error: la cadena valor1 tiene mas de 256 caracteres.\n");
-        return -1;
-    }
-    // abrir colas
-    open_client(&queue_cliente, client_name);
-    if (-1 == queue_cliente){
-        perror("Error en cliente. Mq_open queue cliente");
-        return -1;
-    }
-    open_server(&queue_servidor);
-    if (-1 == queue_servidor){
-        close_client(&queue_cliente, client_name);
-        perror("Error en cliente. Mq_open queue servidor");
-        return -1;
-    }
-    // Rellenar la peticion
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-
-    memset(&p, 0, sizeof(struct peticion));
-    p.op = 1;
-    strcpy(p.q_name, client_name);
-    p.key = key;
-    strcpy(p.valor1, value1);
-    p.valor2_N = N_value2;
-    // copiar vector
-    for (int i = 0; i < N_value2; i++) {
-        p.valor2_value[i] = V_value2[i];
-    }
-    // mandar peticion al servidor
-    int send_p = send_server(&queue_servidor, (const char *)&p, sizeof(struct peticion), 0);
-    if (-1 == send_p){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_send");
-        return -1;
-    }
-    // recibir respuesta
-    int recv_r = receive_client(&queue_cliente, (char *)&r, sizeof(struct respuesta), 0);
-    if (-1 == recv_r){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_recv");
-        return -1;
-    }
-    close_queues(&queue_servidor, &queue_cliente, client_name);
-    return r.status;
-
-
-}
-
-int get_value(int key, char *value1, int *N_value2, double *V_value2){
-    struct peticion p;
-    struct respuesta r;
-    mqd_t queue_servidor;
-    mqd_t queue_cliente;
-    char client_name[MAX];
-    // abrir colas
-    open_client(&queue_cliente, client_name);
-    if (-1 == queue_cliente){
-        perror("Error en cliente. Mq_open queue cliente");
-        return -1;
-    }
-    open_server(&queue_servidor);
-    if (-1 == queue_servidor){
-        close_client(&queue_cliente, client_name);
-        perror("Error en cliente. Mq_open queue servidor");
-        return -1;
-    }
-    // Rellenar la peticion
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-    memset(&p, 0, sizeof(struct peticion));
-    p.op = 2;
-    strcpy(p.q_name, client_name);
-    p.key = key;
-
-    // mandar peticion al servidor
-    int send_p = send_server(&queue_servidor, (const char *)&p, sizeof(struct peticion), 0);
-    if (-1 == send_p){
-        perror("Error en cliente. Mq_send");
-        return -1;
-    }
-    // recibir respuesta
-    int recv_r = receive_client(&queue_cliente, (char *)&r, sizeof(struct respuesta), 0);
-    if (-1 == recv_r){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_recv");
+    // declaracion variables RPC
+    CLIENT *clnt;
+    enum clnt_stat retval_2;
+    int result_2;
+    struct peticion set_value_1_arg1;
+    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    if (clnt == NULL){
+        clnt_pcreateerror(host);
         return -1;
     }
     // copiar valores
-    strcpy(value1, r.valor1);
-    *N_value2 = r.N_value2;
-    for (int i = 0; i<r.N_value2; i++){
-        V_value2[i] = r.valor2_value[i];
+    set_value_1_arg1.key = key;
+    strcpy(set_value_1_arg1.valor1, value1);
+    set_value_1_arg1.valor2_N = N_value2;
+    for (int i = 0; i < set_value_1_arg1.valor2_N; i++){
+		set_value_1_arg1.valor2_value[i] = V_value2[i];
+	}
+    // funcion RPC
+    retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
+    if (retval_2 != RPC_SUCCESS){
+        clnt_perror(clnt, "call failed");
+        return -1;
     }
-    close_queues(&queue_servidor, &queue_cliente, client_name);
-    return r.status;
+    return result_2;
+}
+
+int get_value(int key, char *value1, int *N_value2, double *V_value2){
+    // variable de entorno
+    char *host, 
+    host = getenv("IP_TUPLAS");
+    if (host == NULL){
+        fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
+        return -1;
+    }
+    // declaracion variables RPC
+    CLIENT *clnt;
+    enum clnt_stat retval_3;
+    struct respuesta result_3;
+    struct peticion get_value_1_arg1;
+    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    if (clnt == NULL){
+        clnt_pcreateerror(host);
+        return -1;
+    }
+    // copiar valores
+    get_value_1_arg1.key = key;
+    // funcion RPC
+    retval_3 = get_value_1(get_value_1_arg1, &result_3, clnt);
+    if (retval_3 != RPC_SUCCESS){
+		clnt_perror(clnt, "call failed");
+        return -1;
+	}
+    // copiar valores
+    strcpy(value1, result_3.valor1);
+    *N_value2 = result_3.valor2_value;
+    for (int i = 0; i < *N_value2; i++){
+        V_value2[i] = result_3.valor2_value[i];
+    }
+    return result_3.status;
 
 }
 
 int modify_value(int key, char *value1, int N_value2, double *V_value2){
-    struct peticion p;
-    struct respuesta r;
-    mqd_t queue_servidor;
-    mqd_t queue_cliente;
-    char client_name[MAX];
-    // comprobar errores
-    if (N_value2 < 1 || N_value2 > 32){
-        fprintf(stderr, "Error: N_value2 no esta en el rango [1,32].\n");
+    // variable de entorno
+    char *host,
+        host = getenv("IP_TUPLAS");
+    if (host == NULL){
+        fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
     }
-    if (strlen(value1)>MAX){
-        fprintf(stderr, "Error: la cadena valor1 tiene mas de 256 caracteres.\n");
+    // declaracion variables RPC
+    CLIENT *clnt;
+    enum clnt_stat retval_4;
+    int result_4;
+    struct peticion modify_value_1_arg1;
+    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    if (clnt == NULL){
+        clnt_pcreateerror(host);
         return -1;
     }
-    // abrir colas
-    open_client(&queue_cliente, client_name);
-    if (-1 == queue_cliente){
-        perror("Error en cliente. Mq_open queue cliente");
+    // copiar valores
+    modify_value_1_arg1.key = key;
+    strcpy(modify_value_1_arg1.valor1, value1);
+    modify_value_1_arg1.valor2_N = N_value2;
+    for (int i = 0; i < modify_value_1_arg1.valor2_N; i++){
+        modify_value_1_arg1.valor2_value[i] = V_value2[i];
+    }
+    // funcion RPC
+    retval_4 = modify_value_1(modify_value_1_arg1, &result_4, clnt);
+    if (retval_4 != RPC_SUCCESS) {
+    	clnt_perror (clnt, "call failed");
         return -1;
     }
-    open_server(&queue_servidor);
-    if (-1 == queue_servidor){
-        close_client(&queue_cliente, client_name);
-        perror("Error en cliente. Mq_open queue servidor");
-        return -1;
-    }
-    // Rellenar la peticion
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-    memset(&p, 0, sizeof(struct peticion));
-    p.op = 3;
-    strcpy(p.q_name, client_name);
-    p.key = key;
-    strcpy(p.valor1, value1);
-    for (int i = 0; i < N_value2; i++){
-        p.valor2_value[i] = V_value2[i];
-    }
-    p.valor2_N = N_value2;
-
-    // mandar peticion al servidor
-    int send_p = send_server(&queue_servidor, (const char *)&p, sizeof(struct peticion), 0);
-    if (-1 == send_p){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_send");
-        return -1;
-    }
-    // recibir respuesta
-    int recv_r = receive_client(&queue_cliente, (char *)&r, sizeof(struct respuesta), 0);
-    if (-1 == recv_r){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_recv");
-        return -1;
-    }
-    close_queues(&queue_servidor, &queue_cliente, client_name);
-    return r.status;
-
+    return result_4;
 }
 int delete_key(int key){
-    struct peticion p;
-    struct respuesta r;
-    mqd_t queue_servidor;
-    mqd_t queue_cliente;
-    char client_name[MAX];
-    // abrir colas
-    open_client(&queue_cliente, client_name);
-    if (-1 == queue_cliente){
-        perror("Error en cliente. Mq_open queue cliente");
+    // variable de entorno
+    char *host,
+        host = getenv("IP_TUPLAS");
+    if (host == NULL){
+        fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
+        
         return -1;
     }
-    open_server(&queue_servidor);
-    if (-1 == queue_servidor){
-        close_client(&queue_cliente, client_name);
-        perror("Error en cliente. Mq_open queue servidor");
+    // declaracion variables RPC
+    CLIENT *clnt;
+    enum clnt_stat retval_5;
+    int result_5;
+    int delete_key_1_key;
+    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    if (clnt == NULL){
+        clnt_pcreateerror(host);
         return -1;
     }
-    // Rellenar la peticion
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-    memset(&p, 0, sizeof(struct peticion));
-    p.op = 4;
-    strcpy(p.q_name, client_name);
-    p.key = key;
-    // mandar peticion al servidor
-    int send_p = send_server(&queue_servidor, (const char *)&p, sizeof(struct peticion), 0);
-    if (-1 == send_p){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_send");
+    // funcion RPC
+    delete_key_1_key = key;
+    retval_5 = delete_key_1(delete_key_1_key, &result_5, clnt);
+    if (retval_5 != RPC_SUCCESS) {
+    	clnt_perror (clnt, "call failed");
         return -1;
     }
-    // recibir respuesta
-    int recv_r = receive_client(&queue_cliente, (char *)&r, sizeof(struct respuesta), 0);
-    if (-1 == recv_r){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_recv");
-        return -1;
-    }
-    close_queues(&queue_servidor, &queue_cliente, client_name);
-    return r.status;
+    return result_5;
 }
 
 int exist(int key){
-    struct peticion p;
-    struct respuesta r;
-    mqd_t queue_servidor;
-    mqd_t queue_cliente;
-    char client_name[MAX];
-    // abrir colas
-    open_client(&queue_cliente, client_name);
-    if (-1 == queue_cliente){
-        perror("Error en cliente. Mq_open queue cliente");
+    // variable de entorno
+    char *host, 
+    host = getenv("IP_TUPLAS");
+    if (host == NULL){
+        fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
     }
-    open_server(&queue_servidor);
-    if (-1 == queue_servidor){
-        close_client(&queue_cliente, client_name);
-        perror("Error en cliente. Mq_open queue servidor");
+    // declaracion variables RPC
+    CLIENT *clnt;
+    enum clnt_stat retval_6;
+    int result_6;
+    int exist_1_key;
+    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    if (clnt == NULL){
+        clnt_pcreateerror(host);
         return -1;
     }
-    // Rellenar la peticion
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-    memset(&p, 0, sizeof(struct peticion));
-    p.op = 5;
-    strcpy(p.q_name, client_name);
-    p.key = key;
-    // mandar peticion al servidor
-    int send_p = send_server(&queue_servidor, (const char *)&p, sizeof(struct peticion), 0);
-    if (-1 == send_p){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_send");
+    // funcion RPC
+    exist_1_key = key;
+    retval_6 = exist_1(exist_1_key, &result_6, clnt);
+    if (retval_6 != RPC_SUCCESS) {
+    	clnt_perror (clnt, "call failed");
         return -1;
     }
-    // recibir respuesta
-    int recv_r = receive_client(&queue_cliente, (char *)&r, sizeof(struct respuesta), 0);
-    if (-1 == recv_r){
-        close_queues(&queue_servidor, &queue_cliente, client_name);
-        perror("Error en cliente. Mq_recv");
-        return -1;
-    }
-    close_queues(&queue_servidor, &queue_cliente, client_name);
-    return r.status;
-
+    return result_6;
 }
 
-void open_client(mqd_t *queue_cliente, char *client_name){
-    sprintf(client_name, "%s%d", "/CLIENTE_", getpid());
-    // abrir cola cliente
-    struct mq_attr attr_cliente;
-    attr_cliente.mq_maxmsg = 10;
-    attr_cliente.mq_msgsize = sizeof(struct respuesta);
-    *queue_cliente = mq_open(client_name, O_CREAT | O_RDONLY, 0700, &attr_cliente);
-}
 
-void open_server(mqd_t * queue_servidor){
-    // crear nombre cola
-    const static char queue_name_s[1024] = "/SERVIDOR";
-    // abrir cola servidor
-    struct mq_attr attr_servidor;
-    attr_servidor.mq_maxmsg = 10;
-    attr_servidor.mq_msgsize = sizeof(struct peticion);
-    *queue_servidor = mq_open(queue_name_s, O_CREAT| O_WRONLY, 0700, &attr_servidor);
-}
 
-int send_server(mqd_t * queue_servidor,const char * message, int size, unsigned int prio){
-    int send = mq_send(*queue_servidor, message, size, prio);
-    return send;
-}
-
-int receive_client(mqd_t *queue_cliente, char *message, int size, unsigned int *prio){
-    int receive = mq_receive(*queue_cliente, message, size, prio);
-    return receive;
-}
-
-void close_queues(mqd_t *queue_servidor, mqd_t *queue_cliente, char *client_name){
-    mq_close(*queue_servidor);
-    mq_close(*queue_cliente);
-    mq_unlink(client_name);
-}
-
-void close_client(mqd_t *queue_cliente, char *client_name) {
-    mq_close(*queue_cliente);
-    mq_unlink(client_name);
-}
 
