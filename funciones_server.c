@@ -50,6 +50,7 @@ bool_t
 set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
+	puts("AQUI 1");
 	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
@@ -68,14 +69,15 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 		}
 	}
 	pthread_mutex_unlock(&mutex_server);
-	// 
+	puts("AQUI 2");
 	arg1.op = 1;
 	// obtener resultado
 	struct respuesta resp_pet;
+	puts("AQUI 3");
 	tratar_peticion(arg1, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
-	
+	puts("AQUI 4");
 	return retval;
 }
 
@@ -97,7 +99,6 @@ get_value_1_svc(struct peticion arg1, struct respuesta *result, struct svc_req *
 			server_initialized = server_status;
 		}
 	}
-
 	pthread_mutex_unlock(&mutex_server);
 	arg1.op = 2;
 	struct respuesta resp;

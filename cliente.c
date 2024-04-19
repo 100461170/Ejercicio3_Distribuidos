@@ -13,7 +13,7 @@ int main(int argc, char * argv[])
 {
     srand(time(NULL) * getpid()); // Inicialización adecuada de la semilla
     // Generación aleatoria de la operación y la clave
-    int random_operation = rand() % 6;
+    int random_operation = 1; //rand() % 6;
     int random_key;
     if (argc > 1 && strcmp(argv[1], "1") == 0) {
         random_key = 1;

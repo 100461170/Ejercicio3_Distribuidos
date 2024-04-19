@@ -31,12 +31,25 @@ int init(){
     retval_1 = init_1(&result_1, clnt);
     if (retval_1 != RPC_SUCCESS) {
     	clnt_perror (clnt, "call failed");
+        clnt_destroy(clnt);
         return -1;
     }
+    clnt_destroy(clnt);
     return result_1;
 }
 
 int set_value(int key, char *value1, int N_value2, double *V_value2){
+    // comprobar errores
+    puts("AQUI 1");
+    if (N_value2 < 1 || N_value2 > 32)
+    {
+        fprintf(stderr, "Error: N_value2 no esta en el rango [1,32].\n");
+        return -1;
+    }
+    if (strlen(value1) > MAX_SIZE){
+        fprintf(stderr, "Error: la cadena valor1 tiene mas de 256 caracteres.\n");
+        return -1;
+    }
     // variable de entorno
     char *host;
     host = getenv("IP_TUPLAS");
@@ -44,6 +57,8 @@ int set_value(int key, char *value1, int N_value2, double *V_value2){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
     }
+    puts("AQUI 2");
+
     // declaracion variables RPC
     CLIENT *clnt;
     enum clnt_stat retval_2;
@@ -54,6 +69,8 @@ int set_value(int key, char *value1, int N_value2, double *V_value2){
         clnt_pcreateerror(host);
         return -1;
     }
+    puts("AQUI 3");
+
     // copiar valores
     set_value_1_arg1.key = key;
     strcpy(set_value_1_arg1.valor1, value1);
@@ -62,11 +79,15 @@ int set_value(int key, char *value1, int N_value2, double *V_value2){
 		set_value_1_arg1.valor2_value[i] = V_value2[i];
 	}
     // funcion RPC
+    puts("AQUI 3.2");
     retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
     if (retval_2 != RPC_SUCCESS){
         clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
         return -1;
     }
+    puts("AQUI 4");
+    clnt_destroy(clnt);
     return result_2;
 }
 
@@ -94,6 +115,7 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2){
     retval_3 = get_value_1(get_value_1_arg1, &result_3, clnt);
     if (retval_3 != RPC_SUCCESS){
 		clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
         return -1;
 	}
     // copiar valores
@@ -102,11 +124,21 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2){
     for (int i = 0; i < *N_value2; i++){
         V_value2[i] = result_3.valor2_value[i];
     }
+    clnt_destroy(clnt);
     return result_3.status;
 
 }
 
 int modify_value(int key, char *value1, int N_value2, double *V_value2){
+    // comprobar errores
+    if (N_value2 < 1 || N_value2 > 32){
+        fprintf(stderr, "Error: N_value2 no esta en el rango [1,32].\n");
+        return -1;
+    }
+    if (strlen(value1)>MAX_SIZE){
+        fprintf(stderr, "Error: la cadena valor1 tiene mas de 256 caracteres.\n");
+        return -1;
+    }
     // variable de entorno
     char *host;
     host = getenv("IP_TUPLAS");
@@ -135,8 +167,10 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2){
     retval_4 = modify_value_1(modify_value_1_arg1, &result_4, clnt);
     if (retval_4 != RPC_SUCCESS) {
     	clnt_perror (clnt, "call failed");
+        clnt_destroy(clnt);
         return -1;
     }
+    clnt_destroy(clnt);
     return result_4;
 }
 int delete_key(int key){
@@ -163,8 +197,10 @@ int delete_key(int key){
     retval_5 = delete_key_1(delete_key_1_key, &result_5, clnt);
     if (retval_5 != RPC_SUCCESS) {
     	clnt_perror (clnt, "call failed");
+        clnt_destroy(clnt);
         return -1;
     }
+    clnt_destroy(clnt);
     return result_5;
 }
 
@@ -191,8 +227,10 @@ int exist(int key){
     retval_6 = exist_1(exist_1_key, &result_6, clnt);
     if (retval_6 != RPC_SUCCESS) {
     	clnt_perror (clnt, "call failed");
+        clnt_destroy(clnt);
         return -1;
     }
+    clnt_destroy(clnt);
     return result_6;
 }
 
