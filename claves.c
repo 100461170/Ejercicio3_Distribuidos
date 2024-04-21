@@ -22,7 +22,7 @@ int init(){
     enum clnt_stat retval_1;
     int result_1;
     // iniciar RPC
-    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    clnt = clnt_create(host, RPC, RPCVER, "tcp");
     if (clnt == NULL){
         clnt_pcreateerror(host);
         return -1;
@@ -40,7 +40,6 @@ int init(){
 
 int set_value(int key, char *value1, int N_value2, double *V_value2){
     // comprobar errores
-    puts("AQUI 1");
     if (N_value2 < 1 || N_value2 > 32)
     {
         fprintf(stderr, "Error: N_value2 no esta en el rango [1,32].\n");
@@ -57,21 +56,20 @@ int set_value(int key, char *value1, int N_value2, double *V_value2){
         fprintf(stderr, "Variable de entorno IP_TUPLA no definida.\n");
         return -1;
     }
-    puts("AQUI 2");
 
     // declaracion variables RPC
     CLIENT *clnt;
     enum clnt_stat retval_2;
     int result_2;
     struct peticion set_value_1_arg1;
-    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    clnt = clnt_create(host, RPC, RPCVER, "tcp");
     if (clnt == NULL){
         clnt_pcreateerror(host);
         return -1;
     }
-    puts("AQUI 3");
 
     // copiar valores
+    memset(&set_value_1_arg1, 0, sizeof(struct peticion));
     set_value_1_arg1.key = key;
     strcpy(set_value_1_arg1.valor1, value1);
     set_value_1_arg1.valor2_N = N_value2;
@@ -79,14 +77,13 @@ int set_value(int key, char *value1, int N_value2, double *V_value2){
 		set_value_1_arg1.valor2_value[i] = V_value2[i];
 	}
     // funcion RPC
-    puts("AQUI 3.2");
+    result_2 = 0;
     retval_2 = set_value_1(set_value_1_arg1, &result_2, clnt);
     if (retval_2 != RPC_SUCCESS){
         clnt_perror(clnt, "call failed");
         clnt_destroy(clnt);
         return -1;
     }
-    puts("AQUI 4");
     clnt_destroy(clnt);
     return result_2;
 }
@@ -104,12 +101,13 @@ int get_value(int key, char *value1, int *N_value2, double *V_value2){
     enum clnt_stat retval_3;
     struct respuesta result_3;
     struct peticion get_value_1_arg1;
-    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    clnt = clnt_create(host, RPC, RPCVER, "tcp");
     if (clnt == NULL){
         clnt_pcreateerror(host);
         return -1;
     }
     // copiar valores
+    memset(&get_value_1_arg1, 0, sizeof(struct peticion));
     get_value_1_arg1.key = key;
     // funcion RPC
     retval_3 = get_value_1(get_value_1_arg1, &result_3, clnt);
@@ -151,12 +149,13 @@ int modify_value(int key, char *value1, int N_value2, double *V_value2){
     enum clnt_stat retval_4;
     int result_4;
     struct peticion modify_value_1_arg1;
-    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    clnt = clnt_create(host, RPC, RPCVER, "tcp");
     if (clnt == NULL){
         clnt_pcreateerror(host);
         return -1;
     }
     // copiar valores
+    memset(&modify_value_1_arg1, 0, sizeof(struct peticion));
     modify_value_1_arg1.key = key;
     strcpy(modify_value_1_arg1.valor1, value1);
     modify_value_1_arg1.valor2_N = N_value2;
@@ -187,7 +186,7 @@ int delete_key(int key){
     enum clnt_stat retval_5;
     int result_5;
     int delete_key_1_key;
-    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    clnt = clnt_create(host, RPC, RPCVER, "tcp");
     if (clnt == NULL){
         clnt_pcreateerror(host);
         return -1;
@@ -217,7 +216,7 @@ int exist(int key){
     enum clnt_stat retval_6;
     int result_6;
     int exist_1_key;
-    clnt = clnt_create(host, RPC, RPCVER, "udp");
+    clnt = clnt_create(host, RPC, RPCVER, "tcp");
     if (clnt == NULL){
         clnt_pcreateerror(host);
         return -1;

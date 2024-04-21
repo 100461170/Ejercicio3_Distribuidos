@@ -19,8 +19,6 @@ xdr_peticion (XDR *xdrs, peticion *objp)
 		 return FALSE;
 	 if (!xdr_int (xdrs, &objp->valor2_N))
 		 return FALSE;
-	 if (!xdr_pointer (xdrs, (char **)&objp->valor2_N_p, sizeof (int), (xdrproc_t) xdr_int))
-		 return FALSE;
 	 if (!xdr_vector (xdrs, (char *)objp->valor2_value, MAX_VECTOR,
 		sizeof (double), (xdrproc_t) xdr_double))
 		 return FALSE;

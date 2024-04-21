@@ -22,7 +22,6 @@ struct peticion {
 	int key;
 	char valor1[MAX_SIZE];
 	int valor2_N;
-	int *valor2_N_p;
 	double valor2_value[MAX_VECTOR];
 };
 typedef struct peticion peticion;

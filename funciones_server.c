@@ -10,13 +10,12 @@
 // variable para inicializar sevidor
 int server_initialized = 0;
 // inicializar mutex
-pthread_mutex_t mutex_server;
+pthread_mutex_t mutex_server = PTHREAD_MUTEX_INITIALIZER;
 
 bool_t
 init_1_svc(int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
-	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
 	if (server_initialized <= 0)
@@ -42,7 +41,7 @@ init_1_svc(int *result, struct svc_req *rqstp)
 	tratar_peticion(pet, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
-	
+
 	return retval;
 }
 
@@ -50,8 +49,6 @@ bool_t
 set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
-	puts("AQUI 1");
-	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
 	if (server_initialized <= 0)
@@ -69,15 +66,12 @@ set_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 		}
 	}
 	pthread_mutex_unlock(&mutex_server);
-	puts("AQUI 2");
 	arg1.op = 1;
 	// obtener resultado
 	struct respuesta resp_pet;
-	puts("AQUI 3");
 	tratar_peticion(arg1, &resp_pet);
 	*result = resp_pet.status;
 	retval = 1;
-	puts("AQUI 4");
 	return retval;
 }
 
@@ -85,17 +79,18 @@ bool_t
 get_value_1_svc(struct peticion arg1, struct respuesta *result, struct svc_req *rqstp)
 {
 	bool_t retval;
-	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
 	if (server_initialized <= 0)
 	{
 		int server_status = server_init();
-		if (server_status == -1){
+		if (server_status == -1)
+		{
 			pthread_mutex_unlock(&mutex_server);
 			return -1;
 		}
-		else{
+		else
+		{
 			server_initialized = server_status;
 		}
 	}
@@ -113,7 +108,6 @@ bool_t
 modify_value_1_svc(struct peticion arg1, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
-	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
 	if (server_initialized <= 0)
@@ -145,7 +139,6 @@ bool_t
 delete_key_1_svc(int key, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
-	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
 	if (server_initialized <= 0)
@@ -181,7 +174,6 @@ bool_t
 exist_1_svc(int key, int *result, struct svc_req *rqstp)
 {
 	bool_t retval;
-	pthread_mutex_init(&mutex_server, NULL);
 	// inicializar servidor
 	pthread_mutex_lock(&mutex_server);
 	if (server_initialized <= 0)

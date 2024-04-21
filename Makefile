@@ -29,7 +29,7 @@ CPPFLAGS += -D_REENTRANT
 CFLAGS += -g -I/usr/include/tirpc
 LDLIBS += -lnsl -lpthread -ldl -ltirpc 
 LIBFLAGS = 
- RPCGENFLAGS = 
+RPCGENFLAGS = -MNa
 
 # Targets 
 

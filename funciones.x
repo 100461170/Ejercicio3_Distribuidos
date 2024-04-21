@@ -6,7 +6,6 @@ struct peticion {
     int key;
     opaque valor1[MAX_SIZE];
     int valor2_N;
-    int* valor2_N_p;
     double valor2_value[MAX_VECTOR];
 };
 
