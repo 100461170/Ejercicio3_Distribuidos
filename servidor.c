@@ -4,7 +4,6 @@
 #include "funciones.h"
 #include <pthread.h>
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -26,10 +25,7 @@ int write_back();
 void close_server();
 int server_init();
 
-// mutex para copiar la peticion recibida a una variable local
-/* pthread_mutex_t sync_mutex;
-bool sync_copied = false;
-pthread_cond_t sync_cond; */
+
 // mutex para hacer peticiones concurrentes atómicas
 pthread_mutex_t almacen_mutex;
 // Almacen dinámico de tuplas
@@ -39,72 +35,7 @@ int n_elementos = 0;
 // elmentos maximos del array
 int max_tuplas = 50;
 
-/* int main (){
-    // Inicializamos el almacén
-    almacen = (struct tupla*)malloc(max_tuplas*sizeof(struct tupla));
-    // signal para cerrar servidor
-    signal(SIGINT, close_server);
-    // cargamos los datos del almacen
-    if (-1 == load()) {
-        fprintf(stderr, "Error en servidor al cargar el almacen del archivo binary\n");
-        return -1;
-    }
-    // Inicializamos peticion y variables
-    struct peticion p;
-    unsigned int prio = 0;
-    int contador = 0;
-    // Inicializamos los atributos de la cola
-    struct mq_attr attr_servidor;
-    attr_servidor.mq_maxmsg = 10;
-    attr_servidor.mq_msgsize = sizeof(struct peticion);
-    // Inicializamos los hilos
-    pthread_attr_t attr;
-    pthread_t thid[MAX_SIZE];
-    pthread_attr_init(&attr) ;
-    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    // Inicializamos mutex y variable condicion
-    pthread_mutex_init(&sync_mutex, NULL);
-    pthread_mutex_init(&almacen_mutex, NULL);
-    pthread_cond_init(&sync_cond, NULL);
-    // Abrimos la cola del servidor para lectura
-    queue_servidor = mq_open("/SERVIDOR", O_CREAT | O_RDONLY, 0700, &attr_servidor);
-    if (queue_servidor == -1){
-        perror("Error en servidor. Mq_open queue servidor");
-        return -1;
-    }
-    // Bucle infinito
-    while (1) {
-        if (mq_receive(queue_servidor, (char *)&p, sizeof(struct peticion), &prio) < 0) {
-            perror("Error en servidor. Mq_recv");
-            return -1;
-        }
-        if (pthread_create(&thid[contador], &attr, tratar_peticion, (struct perticion *) &p) != 0) {
-            perror("Error en servidor. Pthread_create");
-            return -1;
-        }
-        // Hacemos lock al mutex hasta que se copie la peticion en el hilo
-        pthread_mutex_lock(&sync_mutex) ;
-        while (sync_copied == false) {
-            pthread_cond_wait(&sync_cond, &sync_mutex) ;
-        }
-        sync_copied = false;
-        pthread_mutex_unlock(&sync_mutex) ;
-        // Contador para los hilos
-        contador++;
-    }
-    return 0;
-} */
-
-void tratar_peticion(struct peticion p_local, struct respuesta *resp){
-    // struct peticion * p = pp;
-    // // Creamos la peticion local y la respuesta
-    // struct peticion p_local;
-    
-    // // Adquirimos el mutex para copiar la peticion pasada por parametro
-    // pthread_mutex_lock(&sync_mutex);
-    // p_local = *p;
-    // pthread_mutex_unlock(&sync_mutex);
-    
+void tratar_peticion(struct peticion p_local, struct respuesta *resp){    
     // En funcion de la operacion especificada en la peticion hacemos una u otra operacion
 
     switch (p_local.op){
@@ -349,9 +280,7 @@ int server_init(){
         return -1;
     }
     // Inicializamos mutex y variable condicion
-    // pthread_mutex_init(&sync_mutex, NULL);
     pthread_mutex_init(&almacen_mutex, NULL);
-    // pthread_cond_init(&sync_cond, NULL);
 
     return 1;
 }
